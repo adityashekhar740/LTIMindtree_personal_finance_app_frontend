@@ -10,11 +10,14 @@ export default function LoginForm() {
   const dispatch=useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const  [error, seterror] = useState(null);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
+  
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+    seterror(null);
     try{
       dispatch(signInStart());
       const res=await axios.post('/api/auth/signin',{email,password});
@@ -23,10 +26,9 @@ export default function LoginForm() {
       navigate('/dashboard');
     }
     catch(e){
-      dispatch(signInFailure(e.message));
       console.log(e);
+      seterror(e.response.data);
     }
-    navigate('/dashboard');
   };
 
   return (
@@ -75,7 +77,7 @@ export default function LoginForm() {
           Forgot Password?
         </Link>
       </div>
-
+     {error && <p className='text-center text-[red]' >{error}</p>}
       <button
         type="submit"
         onClick={(e)=>{handleSubmit(e)}}

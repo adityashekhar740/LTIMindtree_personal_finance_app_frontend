@@ -1,59 +1,116 @@
-import { useState } from 'react';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { Plus, Calendar, Tag, Trash2, Filter, ChevronDown } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+import { useEffect, useState } from "react";
+import DashboardLayout from "../components/layout/DashboardLayout";
+import {
+  Plus,
+  Calendar,
+  Tag,
+  Trash2,
+  Filter,
+  ChevronDown,
+  UserPlus,
+} from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from "recharts";
+import axios from "axios";
+import { useAppSelector } from "../store/store";
 
 // Sample data
 const expenseData = [
   {
-    id: '1',
-    description: 'Groceries',
+    id: "1",
+    description: "Groceries",
     amount: 8500,
-    date: '2024-03-15',
-    category: 'Food & Dining',
+    date: "2024-03-15",
+    category: "Food & Dining",
   },
   {
-    id: '2',
-    description: 'Electricity Bill',
+    id: "2",
+    description: "Electricity Bill",
     amount: 3500,
-    date: '2024-03-10',
-    category: 'Utilities',
+    date: "2024-03-10",
+    category: "Utilities",
   },
   {
-    id: '3',
-    description: 'Movie Night',
+    id: "3",
+    description: "Movie Night",
     amount: 2000,
-    date: '2024-03-05',
-    category: 'Entertainment',
+    date: "2024-03-05",
+    category: "Entertainment",
   },
 ];
 
 const categories = [
-  'Food & Dining',
-  'Transportation',
-  'Utilities',
-  'Entertainment',
-  'Shopping',
-  'Healthcare',
-  'Others',
+  "Food & Dining",
+  "Transportation",
+  "Utilities",
+  "Entertainment",
+  "Shopping",
+  "Healthcare",
+  "Others",
 ];
 
 const COLORS = [
-  '#10B981',
-  '#3B82F6',
-  '#F59E0B',
-  '#EF4444',
-  '#8B5CF6',
-  '#EC4899',
-  '#6B7280',
+  "#10B981",
+  "#3B82F6",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#EC4899",
+  "#6B7280",
 ];
 
 export default function ExpenseTracker() {
+  const currentUser = useAppSelector((state) => state.users.currentUser);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [expenses, setExpenses] = useState(expenseData);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [expenses, setExpenses] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [topCategory, setTopCategory] = useState("-");
+  const [topCatPer, setTopPer] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(null);
+  const [formData, setFormData] = useState({
+    category: "",
+    amount: 0,
+    date: "",
+    description: "",
+    userRef: currentUser._id,
+  });
 
-  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  useEffect(() => {
+    function updateInfo() {
+      setTotalExpenses(expenses.reduce((sum, exp) => sum + exp.amount, 0));
+      let topCat = "";
+      let amt = 0;
+      for (let i = 0; i < expenses.length; i++) {
+        if (expenses[i].amount > amt) {
+          topCat = expenses[i].category;
+          amt = expenses[i].amount;
+        }
+      }
+      if(totalExpenses){
+        let calc = (amt / totalExpenses) * 100;
+        calc = calc.toFixed(0);
+        console.log(calc);
+        setTopPer(calc);
+      }
+      setTopCategory(topCat);
+    }
+    updateInfo();
+  }, [expenses]);
+
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const res = await axios.get("/api/expenses/getallexpenses", {
+          params: {
+            userId: currentUser._id,
+          },
+        });
+        setExpenses(res.data);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    fetchExpenses();
+  }, []);
 
   const chartData = categories
     .map((category) => ({
@@ -64,26 +121,46 @@ export default function ExpenseTracker() {
     }))
     .filter((item) => item.value > 0);
 
-  const handleAddExpense = (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const newExpense = {
-      id: Date.now().toString(),
-      description: formData.get('description'),
-      amount: parseFloat(formData.get('amount')),
-      date: formData.get('date'),
-      category: formData.get('category'),
-    };
-    setExpenses([newExpense, ...expenses]);
-    setShowAddForm(false);
+    // const formData = new FormData(e.target);
+    // const newExpense = {
+    //   id: Date.now().toString(),
+    //   description: formData.get('description'),
+    //   amount: parseFloat(formData.get('amount')),
+    //   date: formData.get('date'),
+    //   category: formData.get('category'),
+    // };
+    // setExpenses([newExpense, ...expenses]);
+    try {
+      const res = await axios.post("/api/expenses/addexpense", formData);
+      console.log(res.data);
+      setExpenses([...expenses, res.data]);
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setShowAddForm(false);
+    }
   };
 
-  const handleDeleteExpense = (id) => {
-    setExpenses(expenses.filter((expense) => expense.id !== id));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleDeleteExpense = async (id) => {
+    // setExpenses(expenses.filter((expense) => expense.id !== id));
+    try {
+      const res = await axios.delete(`/api/expenses/deleteexpense/${id}`);
+      const TempExp = expenses.filter((exp) => exp._id != id);
+      setExpenses(TempExp);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const filteredExpenses =
-    selectedCategory === 'All'
+    selectedCategory === "All"
       ? expenses
       : expenses.filter((expense) => expense.category === selectedCategory);
 
@@ -98,7 +175,7 @@ export default function ExpenseTracker() {
             Total Expenses
           </h3>
           <p className="text-3xl font-bold text-white">
-            ₹{totalExpenses.toLocaleString('en-IN')}
+            ₹{totalExpenses && totalExpenses.toLocaleString("en-IN")}
           </p>
           <p className="text-red-400 text-sm">+8% from last month</p>
         </div>
@@ -117,8 +194,12 @@ export default function ExpenseTracker() {
           <h3 className="text-lg font-semibold text-white mb-2">
             Top Category
           </h3>
-          <p className="text-3xl font-bold text-white">Food & Dining</p>
-          <p className="text-gray-400 text-sm">35% of total expenses</p>
+          <p className="text-3xl font-bold text-white">{topCategory}</p>
+          {topCatPer && (
+            <p className="text-gray-400 text-sm">
+              {topCatPer}% of total expenses
+            </p>
+          )}
         </div>
       </div>
 
@@ -179,7 +260,7 @@ export default function ExpenseTracker() {
                   </div>
                   <div className="text-right">
                     <p className="text-white font-medium">
-                      ₹{amount.toLocaleString('en-IN')}
+                      ₹{amount.toLocaleString("en-IN")}
                     </p>
                     <p className="text-sm text-gray-400">{percentage}%</p>
                   </div>
@@ -241,10 +322,10 @@ export default function ExpenseTracker() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="font-semibold text-white">
-                ₹{expense.amount.toLocaleString('en-IN')}
+                ₹{expense.amount.toLocaleString("en-IN")}
               </span>
               <button
-                onClick={() => handleDeleteExpense(expense.id)}
+                onClick={() => handleDeleteExpense(expense._id)}
                 className="text-red-400 hover:text-red-300 transition-colors"
               >
                 <Trash2 className="h-5 w-5" />
@@ -260,12 +341,15 @@ export default function ExpenseTracker() {
             <h2 className="text-2xl font-bold text-white mb-6">
               Add New Expense
             </h2>
-            <form onSubmit={handleAddExpense} className="space-y-6">
+            <form className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Description
                 </label>
                 <input
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
                   type="text"
                   name="description"
                   className="w-full rounded-lg glass-input py-3 px-4"
@@ -278,6 +362,9 @@ export default function ExpenseTracker() {
                   Amount (₹)
                 </label>
                 <input
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
                   type="number"
                   name="amount"
                   className="w-full rounded-lg glass-input py-3 px-4"
@@ -290,6 +377,9 @@ export default function ExpenseTracker() {
                   Date
                 </label>
                 <input
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
                   type="date"
                   name="date"
                   className="w-full rounded-lg glass-input py-3 px-4"
@@ -302,6 +392,9 @@ export default function ExpenseTracker() {
                   Category
                 </label>
                 <select
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
                   name="category"
                   className="w-full rounded-lg glass-input py-3 px-4"
                   required
@@ -323,6 +416,9 @@ export default function ExpenseTracker() {
                   Cancel
                 </button>
                 <button
+                  onClick={(e) => {
+                    handleAddExpense(e);
+                  }}
                   type="submit"
                   className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all"
                 >

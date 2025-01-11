@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -9,8 +9,12 @@ import BudgetManagement from './pages/BudgetManagement';
 import ExpenseTracker from './pages/ExpenseTracker';
 import IncomeManagement from './pages/IncomeManagement';
 import InvestmentTracking from './pages/InvestmentTracking';
-
+import { useAppSelector } from './store/store';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 function App() {
+  
+ 
   return (
     <Router>
       <Routes>

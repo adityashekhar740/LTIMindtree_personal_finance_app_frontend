@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Plus,
   AlertTriangle,
@@ -8,22 +8,52 @@ import {
 } from 'lucide-react';
 import { Budget } from '../types';
 import { categories } from '../data/categories';
+import axios from 'axios';
+import { useAppSelector } from '../store/store';
 
 export default function BudgetManagement() {
-  const [budgets, setBudgets] = useState<Budget[]>([
-    { id: '1', category: 'Housing', limit: 100000, spent: 85000 },
-    { id: '2', category: 'Transportation', limit: 50000, spent: 35000 },
-    { id: '3', category: 'Food & Dining', limit: 30000, spent: 25000 },
-    { id: '4', category: 'Entertainment', limit: 20000, spent: 15000 },
-  ]);
+  const currentUser=useAppSelector(state=>state.users.currentUser);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [showAddBudget, setShowAddBudget] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+  const [formData,setFormData]=useState({
+    category:'',
+    limit:'',
+    userRef:currentUser?._id,
+  });
 
-  const handleAddBudget = (budget: Budget) => {
-    setBudgets([...budgets, { ...budget, id: Date.now().toString() }]);
+  const handleAddBudget = async(e) => {
+    // setBudgets([...budgets, { ...budget, id: Date.now().toString() }]);
+    e.preventDefault();
+    try{
+      const res=await axios.post('api/budget/createbudget',formData);
+      setBudgets([...budgets,res.data]);
+    }
+    catch(e){
+      console.log(e);
+    }
+    finally{
     setShowAddBudget(false);
+    }
   };
 
+  useEffect(()=>{
+    const fetchBudgets=async()=>{
+      try{
+        const res=await axios.get(`/api/budget/getallbudgets/${currentUser?._id}`);
+        setBudgets(res.data);
+      }
+      catch(e){
+        console.log(e);
+      }
+    }
+    fetchBudgets();
+  },[])
+
+  const handleChange=(e)=>{
+    const {name,value}=e.target;
+    setFormData({...formData,[name]:value});
+  }
   const handleUpdateBudget = (updatedBudget: Budget) => {
     setBudgets(
       budgets.map((b) => (b.id === updatedBudget.id ? updatedBudget : b))
@@ -64,9 +94,12 @@ export default function BudgetManagement() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {
+          budgets.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {budgets.map((budget) => {
-            const percentage = (budget.spent / budget.limit) * 100;
+            var percentage = (budget.spent / budget.limit) * 100;
+          if(!percentage)percentage=0;
             const isExceeding = percentage >= 100;
             const isWarning = percentage >= 80 && percentage < 100;
 
@@ -89,12 +122,14 @@ export default function BudgetManagement() {
 
                 <div className="space-y-4">
                   <div>
-                    <div className="flex justify-between text-sm mb-1">
+                    {
+                      (budget.spent!=undefined)?<div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-400">Spent</span>
                       <span className="text-white">
                         ₹{budget.spent.toLocaleString('en-IN')}
                       </span>
-                    </div>
+                    </div>:null
+                    }
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-gray-400">Limit</span>
                       <span className="text-white">
@@ -134,6 +169,10 @@ export default function BudgetManagement() {
             );
           })}
         </div>
+          ):(<h1 className='text-center text-gray-200' >
+            There are no budgets created yet...
+          </h1>)
+        }
 
         {/* Add/Edit Budget Modal */}
         {(showAddBudget || editingBudget) && (
@@ -144,17 +183,18 @@ export default function BudgetManagement() {
               </h2>
               <form
                 onSubmit={(e) => {
-                  e.preventDefault();
-                  const formData = new FormData(e.currentTarget);
-                  const budget: Budget = {
-                    id: editingBudget?.id || '',
-                    category: formData.get('category') as string,
-                    limit: Number(formData.get('limit')),
-                    spent: editingBudget?.spent || 0,
-                  };
-                  editingBudget
-                    ? handleUpdateBudget(budget)
-                    : handleAddBudget(budget);
+                  handleAddBudget(e);
+                  // e.preventDefault();
+                  // const formData = new FormData(e.currentTarget);
+                  // const budget: Budget = {
+                  //   id: editingBudget?.id || '',
+                  //   category: formData.get('category') as string,
+                  //   limit: Number(formData.get('limit')),
+                  //   spent: editingBudget?.spent || 0,
+                  // };
+                  // editingBudget
+                  //   ? handleUpdateBudget(budget)
+                  //   : handleAddBudget(budget);
                 }}
                 className="space-y-6"
               >
@@ -163,6 +203,7 @@ export default function BudgetManagement() {
                     Category
                   </label>
                   <select
+                  onChange={(e)=>{handleChange(e)}}
                     name="category"
                     defaultValue={editingBudget?.category || ''}
                     className="w-full rounded-lg py-3 px-4 bg-gray-800 text-white border border-gray-700 focus:ring focus:ring-blue-600 focus:outline-none"
@@ -188,6 +229,8 @@ export default function BudgetManagement() {
                     Monthly Limit (₹)
                   </label>
                   <input
+                  onChange={(e)=>{handleChange(e)}}
+
                     type="number"
                     name="limit"
                     defaultValue={editingBudget?.limit || ''}

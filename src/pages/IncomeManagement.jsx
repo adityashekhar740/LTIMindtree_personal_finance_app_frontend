@@ -4,12 +4,7 @@ import { Plus, Calendar, Tag, Trash2, Filter } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import axios from 'axios';
 import {useAppSelector} from '../store/store';
-// Sample data
-// const incomeData = [
-//   { id: '1', source: 'Salary', amount: 150000, date: '2024-03-15', category: 'Primary Income' },
-//   { id: '2', source: 'Freelance', amount: 45000, date: '2024-03-10', category: 'Secondary Income' },
-//   { id: '3', source: 'Investments', amount: 25000, date: '2024-03-05', category: 'Passive Income' },
-// ];
+
 
 
 
@@ -29,20 +24,20 @@ export default function IncomeManagement() {
   });
   const [incomes, setIncomes] = useState([]);
 
-  const [monthlyIncome,setMonthlyIncome]=useState({
-    jan:0,
-    feb:0,
-    mar:0,
-    apr:0,
-    may:0,
-    jun:0,
-    jul:0,
-    aug:0,
-    sep:0,
-    oct:0,
-    nov:0,
-    dec:0,
-  });
+  // const [monthlyIncome,setMonthlyIncome]=useState({
+  //   jan:0,
+  //   feb:0,
+  //   mar:0,
+  //   apr:0,
+  //   may:0,
+  //   jun:0,
+  //   jul:0,
+  //   aug:0,
+  //   sep:0,
+  //   oct:0,
+  //   nov:0,
+  //   dec:0,
+  // });
 
   const [chartData,setChartData] = useState([
     { month: "Jan", amount: 0 },

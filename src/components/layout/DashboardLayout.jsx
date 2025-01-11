@@ -7,16 +7,18 @@ import {
   TrendingUp, 
   LogOut 
 } from 'lucide-react';
+import { logOutStart } from '../../store/features/userSlice';
+import { useAppDispatch } from "../../store/store";
 import axios from 'axios';
 
 export default function DashboardLayout({ children, title, subtitle }) {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleLogout = async() => {
-    // Add any logout logic here (clearing session etc)
     try{
       const res=await axios.get('/api/auth/logout');
-      console.log(res);
+      dispatch(logOutStart());
     }
     catch(e){
       console.log(e);

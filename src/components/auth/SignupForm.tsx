@@ -19,7 +19,7 @@ export default function SignupForm() {
     catch(e){
       console.log(e);
     }
-    navigate('/dashboard');
+    navigate('/login');
   };
 
   return (

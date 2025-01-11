@@ -1,11 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { DollarSign } from 'lucide-react';
 import About from '../components/landing/About';
 import Features from '../components/landing/Features';
 import Contact from '../components/landing/Contact';
+import axios from 'axios';
+import { useAppSelector } from '../store/store';
 
 export default function Home() {
+  const currentUser=useAppSelector(state=>state.users.currentUser);
+    const navigate=useNavigate();
+   useEffect(()=>{
+      const authenticateUser=async()=>{
+        try{
+        const res=await axios.get('/api/privateroute/authenticate');
+        console.log("Bhala changa");
+      }
+      catch(e){
+        console.log(e);
+        navigate('/login');
+      }
+      }
+      authenticateUser();
+    },[currentUser])
   return (
     <div className="min-h-screen bg-dark-900">
       {/* Hero Section */}
