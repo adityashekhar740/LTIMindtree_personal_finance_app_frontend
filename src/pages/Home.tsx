@@ -14,11 +14,9 @@ export default function Home() {
       const authenticateUser=async()=>{
         try{
         const res=await axios.get('/api/privateroute/authenticate');
-        console.log("Bhala changa");
       }
       catch(e){
         console.log(e);
-        navigate('/login');
       }
       }
       authenticateUser();

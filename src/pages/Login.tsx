@@ -1,9 +1,42 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import LoginForm from '../components/auth/LoginForm';
 import { DollarSign } from 'lucide-react';
-
+import { auth,googleProvider } from '../firebase';
+import { signInWithPopup } from 'firebase/auth';
+import axios from 'axios';
+import { signInSuccess,signInStart } from '../store/features/userSlice';
+import { useAppDispatch } from '../store/store';
 export default function Login() {
+  const navigate=useNavigate();
+  const dispatch=useAppDispatch();
+  const [formData,setFormData]=useState({
+    name:'',
+    email:'',
+  });
+  const handleGoogleSignIn=async(e)=>{
+    e.preventDefault();
+    const res=await signInWithPopup(auth,googleProvider);
+    const token=await res.user.getIdToken();
+    setFormData((prevState)=>({...prevState,name:res.user.displayName??"",
+      email:res.user.email??""
+    }));
+  }
+  useEffect(()=>{
+    const google=async()=>{
+       try{
+      dispatch(signInStart());
+      const result=await axios.post('/api/auth/googlesignin',formData);
+    dispatch(signInSuccess(result.data));
+    navigate('/dashboard');
+    }
+    catch(e){
+      console.log(e);
+    }
+    }
+    google();
+  },[formData])
+
   return (
     <div className="min-h-screen flex">
       {/* Left Section */}
@@ -80,7 +113,7 @@ export default function Login() {
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-4">
-                <button className="flex items-center justify-center gap-2 px-4 py-2 glass-card rounded-lg hover:bg-white/10 transition-colors">
+                <button onClick={(e)=>{handleGoogleSignIn(e)}} className="flex items-center justify-center gap-2 px-4 py-2 glass-card rounded-lg hover:bg-white/10 transition-colors">
                   <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
                   <span className="text-gray-300">Google</span>
                 </button>

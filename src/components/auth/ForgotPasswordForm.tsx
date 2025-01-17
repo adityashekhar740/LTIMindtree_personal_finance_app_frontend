@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import { Mail } from 'lucide-react';
+import axios from 'axios';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+    try{
+      const res=await axios.post('/api/auth/forgot-password',{email:email});
+      console.log(res.data);
+    }
+    catch(e){
+      console.log(e);
+    }
     setSubmitted(true);
   };
 

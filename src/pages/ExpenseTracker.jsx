@@ -39,6 +39,7 @@ const expenseData = [
 ];
 
 const categories = [
+  "Select",
   "Food & Dining",
   "Transportation",
   "Utilities",

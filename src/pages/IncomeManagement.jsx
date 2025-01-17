@@ -24,20 +24,6 @@ export default function IncomeManagement() {
   });
   const [incomes, setIncomes] = useState([]);
 
-  // const [monthlyIncome,setMonthlyIncome]=useState({
-  //   jan:0,
-  //   feb:0,
-  //   mar:0,
-  //   apr:0,
-  //   may:0,
-  //   jun:0,
-  //   jul:0,
-  //   aug:0,
-  //   sep:0,
-  //   oct:0,
-  //   nov:0,
-  //   dec:0,
-  // });
 
   const [chartData,setChartData] = useState([
     { month: "Jan", amount: 0 },
@@ -316,6 +302,7 @@ export default function IncomeManagement() {
                   className="w-full rounded-lg glass-input py-3 px-4"
                   required
                 >
+                  <option value="">Select</option>
                   <option value="Primary Income">Primary Income</option>
                   <option value="Secondary Income">Secondary Income</option>
                   <option value="Passive Income">Passive Income</option>

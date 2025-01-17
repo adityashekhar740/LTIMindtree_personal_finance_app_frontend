@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
@@ -21,15 +21,20 @@ export default function LoginForm() {
     try{
       dispatch(signInStart());
       const res=await axios.post('/api/auth/signin',{email,password});
-      console.log(res);
       dispatch(signInSuccess(res.data));
-      navigate('/dashboard');
+      if(res.data){
+              navigate('/dashboard');
+
+      }
     }
     catch(e){
       console.log(e);
       seterror(e.response.data);
     }
-  };
+  
+    }
+
+  
 
   return (
     <form  className="space-y-6">

@@ -12,6 +12,8 @@ import InvestmentTracking from './pages/InvestmentTracking';
 import { useAppSelector } from './store/store';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { PrivateRoutes } from './components/Private/PrivateRoutes';
+import ResetPassword from './pages/ResetPassword';
 function App() {
   
  
@@ -22,11 +24,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/reset-password/:resetToken" element={<ResetPassword/>} />
+        <Route element={<PrivateRoutes/>} >
+          <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/budgets" element={<BudgetManagement />} />
         <Route path="/expenses" element={<ExpenseTracker />} />
         <Route path="/income" element={<IncomeManagement />} />
         <Route path="/investments" element={<InvestmentTracking />} />
+        </Route>
       </Routes>
     </Router>
   );
