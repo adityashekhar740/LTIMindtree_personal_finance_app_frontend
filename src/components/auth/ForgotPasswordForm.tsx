@@ -10,7 +10,7 @@ export default function ForgotPasswordForm() {
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     try{
-      const res=await axios.post('/api/auth/forgot-password',{email:email});
+      const res=await axios.post('https://personal-finance-app-c2wc.onrender.com/auth/forgot-password',{email:email});
       console.log(res.data);
     }
     catch(e){

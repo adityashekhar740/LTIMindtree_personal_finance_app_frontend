@@ -1,31 +1,35 @@
-import { useEffect, useState } from 'react';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { Plus, Calendar, Tag, Trash2, Filter } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import axios from 'axios';
-import {useAppSelector} from '../store/store';
-
-
-
+import { useEffect, useState } from "react";
+import DashboardLayout from "../components/layout/DashboardLayout";
+import { Plus, Calendar, Tag, Trash2, Filter } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import axios from "axios";
+import { useAppSelector } from "../store/store";
 
 export default function IncomeManagement() {
   const [showAddForm, setShowAddForm] = useState(false);
-  const [totalIncome,setTotalIncome]=useState(0);
-  const [totalIncomeSources,setTotalIncomeSources]=useState(0);
-  const [avgIncome,setAvgIncome]=useState(0);
-  
-  const currentUser=useAppSelector(state=>state.users.currentUser);
-  const [formData,setFormData]=useState({
-    source:'',
-    amount:'',
-    date:'',
-    category:'',
-    userRef:currentUser._id,
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalIncomeSources, setTotalIncomeSources] = useState(0);
+  const [avgIncome, setAvgIncome] = useState(0);
+
+  const currentUser = useAppSelector((state) => state.users.currentUser);
+  const [formData, setFormData] = useState({
+    source: "",
+    amount: "",
+    date: "",
+    category: "",
+    userRef: currentUser._id,
   });
   const [incomes, setIncomes] = useState([]);
 
-
-  const [chartData,setChartData] = useState([
+  const [chartData, setChartData] = useState([
     { month: "Jan", amount: 0 },
     { month: "Feb", amount: 0 },
     { month: "Mar", amount: 0 },
@@ -43,92 +47,90 @@ export default function IncomeManagement() {
   useEffect(() => {
     const fetchIncomes = async () => {
       try {
-        const {data} = await axios.get(`api/income/fetchincomes`,{
-          params:{
-            userId:currentUser._id
-          }
+        const { data } = await axios.get(`api/income/fetchincomes`, {
+          params: {
+            userId: currentUser._id,
+          },
         });
-          setIncomes(data);
-       
+        setIncomes(data);
       } catch (e) {
         console.log(e);
       }
     };
-      fetchIncomes();
-  },[]);
-  
+    fetchIncomes();
+  }, []);
 
-  const handleChange=(e)=>{
-    const {name,value}=e.target;
-    setFormData({...formData,[name]:value});
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-  const handleAddIncome =async (e) => {
+  const handleAddIncome = async (e) => {
     e.preventDefault();
-    try{
-      const res = await axios.post("/api/income/addincomesource",{
-        data:formData,
-      });
+    try {
+      const res = await axios.post(
+        "https://personal-finance-app-c2wc.onrender.com/income/addincomesource",
+        {
+          data: formData,
+        }
+      );
       console.log(res.data);
       setIncomes([...incomes, res.data]);
       setShowAddForm(false);
-    }
-    catch(e){
+    } catch (e) {
       console.log(e);
     }
   };
 
-
-  const handleDeleteIncome = async(e,id) => {
-     e.preventDefault();
-    try{
-      const res = await axios.delete(`/api/income/deleteincomesource`,{
-        params:{
-          id:id
+  const handleDeleteIncome = async (e, id) => {
+    e.preventDefault();
+    try {
+      const res = await axios.delete(
+        `https://personal-finance-app-c2wc.onrender.com/income/deleteincomesource`,
+        {
+          params: {
+            id: id,
+          },
         }
-      });
-      const Temp=incomes.filter(income=>income._id!=id);
+      );
+      const Temp = incomes.filter((income) => income._id != id);
       setIncomes(Temp);
       setShowAddForm(false);
-    }
-    catch(e){
+    } catch (e) {
       console.log(e);
     }
   };
 
- useEffect(()=>{
-   const dataUpdation = () => {
-     setTotalIncome(incomes.reduce((acc, cur) => acc + cur.amount, 0));
-     for (let i = 0; i < incomes.length; i++) {
-       const month = incomes[i].date.split("-")[1];
-       setChartData([
-         ...chartData,
-         (chartData[month - 1].amount = incomes[i].amount),
-       ]);
-     }
-     setTotalIncomeSources(incomes.length);
-   };
-   dataUpdation();
- },[incomes]);
+  useEffect(() => {
+    const dataUpdation = () => {
+      setTotalIncome(incomes.reduce((acc, cur) => acc + cur.amount, 0));
+      for (let i = 0; i < incomes.length; i++) {
+        const month = incomes[i].date.split("-")[1];
+        setChartData([
+          ...chartData,
+          (chartData[month - 1].amount = incomes[i].amount),
+        ]);
+      }
+      setTotalIncomeSources(incomes.length);
+    };
+    dataUpdation();
+  }, [incomes]);
 
-
-
-
- useEffect(()=>{
-  const updateAvg=()=>{
-     const date = new Date();
-   let currMonth = date.getMonth();
-   let avg = 0;
-   for (let i = 0; i <3; i++) {
-    if(currMonth>=0){
-      avg += chartData[currMonth].amount;
-      currMonth--;
-    }
-   }
-   setAvgIncome(avg/3);
-  }
-  updateAvg();
- },[chartData])
+  useEffect(() => {
+    const updateAvg = () => {
+      const date = new Date();
+      let currMonth = date.getMonth();
+      let avg = 0;
+      for (let i = 0; i < 3; i++) {
+        if (currMonth >= 0) {
+          avg += chartData[currMonth].amount;
+          currMonth--;
+        }
+      }
+      setAvgIncome(avg / 3);
+    };
+    updateAvg();
+  }, [chartData]);
 
   return (
     <DashboardLayout
@@ -148,7 +150,9 @@ export default function IncomeManagement() {
           <h3 className="text-lg font-semibold text-white mb-2">
             Average Monthly
           </h3>
-          <p className="text-3xl font-bold text-white">{avgIncome.toFixed(2)}</p>
+          <p className="text-3xl font-bold text-white">
+            {avgIncome.toFixed(2)}
+          </p>
           <p className="text-gray-400 text-sm">Last 3 months</p>
         </div>
 
@@ -199,7 +203,7 @@ export default function IncomeManagement() {
       </div>
 
       <div className="space-y-4">
-        {incomes&&
+        {incomes &&
           incomes.map((income) => (
             <div
               key={income._id}
@@ -214,7 +218,7 @@ export default function IncomeManagement() {
                   <div className="flex items-center space-x-4 text-sm text-gray-400">
                     <span className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      {income.date.split('T')[0]}
+                      {income.date.split("T")[0]}
                     </span>
                     <span className="flex items-center">
                       <Filter className="h-4 w-4 mr-1" />
@@ -228,7 +232,7 @@ export default function IncomeManagement() {
                   ₹{income.amount.toLocaleString("en-IN")}
                 </span>
                 <button
-                  onClick={(e) => handleDeleteIncome(e,income._id)}
+                  onClick={(e) => handleDeleteIncome(e, income._id)}
                   className="text-red-400 hover:text-red-300 transition-colors"
                 >
                   <Trash2 className="h-5 w-5" />

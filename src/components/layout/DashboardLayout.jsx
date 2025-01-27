@@ -17,7 +17,7 @@ export default function DashboardLayout({ children, title, subtitle }) {
 
   const handleLogout = async() => {
     try{
-      const res=await axios.get('/api/auth/logout');
+      const res=await axios.get('//auth/logout');
       dispatch(logOutStart());
     }
     catch(e){

@@ -86,7 +86,7 @@ export default function ExpenseTracker() {
           amt = expenses[i].amount;
         }
       }
-      if(totalExpenses){
+      if (totalExpenses) {
         let calc = (amt / totalExpenses) * 100;
         calc = calc.toFixed(0);
         console.log(calc);
@@ -100,11 +100,14 @@ export default function ExpenseTracker() {
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
-        const res = await axios.get("/api/expenses/getallexpenses", {
-          params: {
-            userId: currentUser._id,
-          },
-        });
+        const res = await axios.get(
+          "https://personal-finance-app-c2wc.onrender.com/expenses/getallexpenses",
+          {
+            params: {
+              userId: currentUser._id,
+            },
+          }
+        );
         setExpenses(res.data);
       } catch (e) {
         console.log(e);
@@ -134,7 +137,10 @@ export default function ExpenseTracker() {
     // };
     // setExpenses([newExpense, ...expenses]);
     try {
-      const res = await axios.post("/api/expenses/addexpense", formData);
+      const res = await axios.post(
+        "https://personal-finance-app-c2wc.onrender.com/expenses/addexpense",
+        formData
+      );
       console.log(res.data);
       setExpenses([...expenses, res.data]);
     } catch (e) {
@@ -152,7 +158,9 @@ export default function ExpenseTracker() {
   const handleDeleteExpense = async (id) => {
     // setExpenses(expenses.filter((expense) => expense.id !== id));
     try {
-      const res = await axios.delete(`/api/expenses/deleteexpense/${id}`);
+      const res = await axios.delete(
+        `https://personal-finance-app-c2wc.onrender.com/expenses/deleteexpense/${id}`
+      );
       const TempExp = expenses.filter((exp) => exp._id != id);
       setExpenses(TempExp);
     } catch (e) {

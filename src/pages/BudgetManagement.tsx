@@ -23,10 +23,9 @@ export default function BudgetManagement() {
   });
 
   const handleAddBudget = async(e) => {
-    // setBudgets([...budgets, { ...budget, id: Date.now().toString() }]);
     e.preventDefault();
     try{
-      const res=await axios.post('api/budget/createbudget',formData);
+      const res=await axios.post('https://personal-finance-app-c2wc.onrender.com/budget/createbudget',formData);
       setBudgets([...budgets,res.data]);
     }
     catch(e){
@@ -40,7 +39,7 @@ export default function BudgetManagement() {
   useEffect(()=>{
     const fetchBudgets=async()=>{
       try{
-        const res=await axios.get(`/api/budget/getallbudgets/${currentUser?._id}`);
+        const res=await axios.get(`https://personal-finance-app-c2wc.onrender.com/budget/getallbudgets/${currentUser?._id}`);
         setBudgets(res.data);
       }
       catch(e){

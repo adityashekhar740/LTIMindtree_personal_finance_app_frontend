@@ -42,7 +42,7 @@ export default function ResetPassword() {
    
     try{
 
-      const res=await axios.post(`/api/auth/reset-password/${resetToken}`,{password:pass,confirmPassword:CnfPass});
+      const res=await axios.post(`https://personal-finance-app-c2wc.onrender.com/auth/reset-password/${resetToken}`,{password:pass,confirmPassword:CnfPass});
       console.log(res.data);
       setSubmitted(true);
     }

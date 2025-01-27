@@ -1,24 +1,38 @@
-import { useEffect, useState } from 'react';
-import DashboardLayout from '../components/layout/DashboardLayout';
-import { Plus, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Briefcase } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import axios from 'axios';
-import { useAppSelector } from '../store/store';
+import { useEffect, useState } from "react";
+import DashboardLayout from "../components/layout/DashboardLayout";
+import {
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  DollarSign,
+  Briefcase,
+} from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import axios from "axios";
+import { useAppSelector } from "../store/store";
 
 // Sample data
 
-
 const performanceData = [
-  { month: 'Jan', value: 550000 },
-  { month: 'Feb', value: 580000 },
-  { month: 'Mar', value: 620000 },
+  { month: "Jan", value: 550000 },
+  { month: "Feb", value: 580000 },
+  { month: "Mar", value: 620000 },
 ];
 
 export default function InvestmentTracking() {
-  const currentUser=useAppSelector(state=>state.users.currentUser);
+  const currentUser = useAppSelector((state) => state.users.currentUser);
   const [showAddForm, setShowAddForm] = useState(false);
   const [investments, setInvestments] = useState([]);
-  
+
   const [formData, setFormData] = useState({
     name: "",
     type: "",
@@ -27,34 +41,40 @@ export default function InvestmentTracking() {
     UserId: currentUser?._id,
   });
 
-  const handleChange=(e)=>{
-    setFormData({...formData,[e.target.name]:e.target.value})
-  }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
   const totalValue = investments.reduce((sum, inv) => sum + inv.value, 0);
-  const avgReturn = (investments.reduce((sum, inv) => sum + inv.returns.$numberDecimal, 0) / investments.length).toFixed(1);
+  const avgReturn = (
+    investments.reduce((sum, inv) => sum + inv.returns.$numberDecimal, 0) /
+    investments.length
+  ).toFixed(1);
 
-  useEffect(()=>{
-    const fetchInvestments=async()=>{
-      try{
-        const res=await axios.get(`/api/investment/getallinvestments/${currentUser._id}`);
+  useEffect(() => {
+    const fetchInvestments = async () => {
+      try {
+        const res = await axios.get(
+          `https://personal-finance-app-c2wc.onrender.com/investment/getallinvestments/${currentUser._id}`
+        );
         console.log(res.data);
         setInvestments(res.data);
-      }
-      catch(e){
+      } catch (e) {
         console.log(e);
       }
-    }
+    };
     fetchInvestments();
-  },[])
+  }, []);
 
-  const handleAddInvestment = async(e) => {
+  const handleAddInvestment = async (e) => {
     e.preventDefault();
-    
-    try{
-      const res=await axios.post('/api/investment/addinvestment/',formData);
-    console.log(res.data);
-    }
-    catch(e){
+
+    try {
+      const res = await axios.post(
+        "https://personal-finance-app-c2wc.onrender.com/investment/addinvestment/",
+        formData
+      );
+      console.log(res.data);
+    } catch (e) {
       console.log(e);
     }
     setInvestments([res.data, ...investments]);
@@ -158,7 +178,9 @@ export default function InvestmentTracking() {
                 </p>
                 <p
                   className={`flex items-center ${
-                    investment.returns.$numberDecimal >= 0 ? "text-green-400" : "text-red-400"
+                    investment.returns.$numberDecimal >= 0
+                      ? "text-green-400"
+                      : "text-red-400"
                   }`}
                 >
                   {investment.returns.$numberDecimal >= 0 ? (

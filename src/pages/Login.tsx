@@ -23,7 +23,8 @@ export default function Login() {
     }));
      try{
       dispatch(signInStart());
-      const result=await axios.post('/api/auth/googlesignin',{name:res.user.displayName,email:res.user.email});
+    // setBudgets([...budgets, { ...budget, id: Date.now().toString() }]);
+      const result=await axios.post('/auth/googlesignin',{name:res.user.displayName,email:res.user.email});
     dispatch(signInSuccess(result.data));
     navigate('/dashboard');
     }

@@ -45,7 +45,16 @@ export default function LoginForm() {
      seterror(null);
     try{
       dispatch(signInStart());
-      const res=await axios.post('/api/auth/signin',{email,password});
+      const res = await axios.post(
+  'https://personal-finance-app-c2wc.onrender.com/auth/signin',
+  { email, password },
+  {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }
+);
+
       dispatch(signInSuccess(res.data));
       if(res.data && !passwordError ){
               navigate('/dashboard');

@@ -11,7 +11,7 @@ export const PrivateRoutes = () => {
     //     const checkToken=async()=>{
     //         console.log("laaa")
     //         try{
-    //             const res=await axios.get('/api/auth/verifytoken');
+    //             const res=await axios.get('//auth/verifytoken');
     //             console.log("Authorized...");
     //         }
     //         catch(e){
