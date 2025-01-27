@@ -15,7 +15,6 @@ import axios from 'axios';
 import { PrivateRoutes } from './components/Private/PrivateRoutes';
 import ResetPassword from './pages/ResetPassword';
 function App() {
-  
  
   return (
     <Router>

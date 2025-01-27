@@ -21,21 +21,30 @@ export default function Login() {
     setFormData((prevState)=>({...prevState,name:res.user.displayName??"",
       email:res.user.email??""
     }));
-  }
-  useEffect(()=>{
-    const google=async()=>{
-       try{
+     try{
       dispatch(signInStart());
-      const result=await axios.post('/api/auth/googlesignin',formData);
+      const result=await axios.post('/api/auth/googlesignin',{name:res.user.displayName,email:res.user.email});
     dispatch(signInSuccess(result.data));
     navigate('/dashboard');
     }
-    catch(e){
+     catch(e){
       console.log(e);
     }
-    }
-    google();
-  },[formData])
+  }
+  // useEffect(()=>{
+  //   const google=async()=>{
+  //      try{
+  //     dispatch(signInStart());
+  //     const result=await axios.post('/api/auth/googlesignin',formData);
+  //   dispatch(signInSuccess(result.data));
+  //   navigate('/dashboard');
+  //   }
+  //   catch(e){
+  //     console.log(e);
+  //   }
+  //   }
+  //   google();
+  // },[formData])
 
   return (
     <div className="min-h-screen flex">

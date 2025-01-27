@@ -8,13 +8,40 @@ export default function ResetPassword() {
   const [pass, setPass] = useState('');
   const [CnfPass, setCnfPass] = useState('');
   const [submitted, setSubmitted] = useState(false);
+   const [password, setPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
+  const validatePassword = (value: string) => {
+    if (value.length < 8 || value.length > 16) {
+      return 'Password must be between 8 and 16 characters';
+    }
+    if (!/[A-Z]/.test(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[0-9]/.test(value)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[!@#$%^&*]/.test(value)) {
+      return 'Password must contain at least one special character (!@#$%^&*)';
+    }
+    return '';
+  };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newPassword = e.target.value;
+      setPass(newPassword);
+      setPasswordError(validatePassword(newPassword));
+    };
   
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
+   
     try{
-      console.log(pass)
-      console.log(CnfPass)
+
       const res=await axios.post(`/api/auth/reset-password/${resetToken}`,{password:pass,confirmPassword:CnfPass});
       console.log(res.data);
       setSubmitted(true);
@@ -46,26 +73,37 @@ export default function ResetPassword() {
           <input
             type="password"
             value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            className="pl-10 mt-2 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 focus:ring-blue-500/20"
+            onChange={handlePasswordChange}
+          className={`pl-10 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 ${
+              passwordError ? 'border-red-500 focus:ring-red-500/20' : 'focus:ring-blue-500/20'
+            }`}
+            // className="pl-10 mt-2 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 focus:ring-blue-500/20"
             placeholder="Enter your Password"
             required
           />
+          {passwordError && (
+          <p className="mt-2 text-sm text-red-400">{passwordError}</p>
+        )}
         <label className="block  mt-3 text-sm text-gray-300">Confirm New Password</label>
 
           <input
             type="password"
             value={CnfPass}
-            onChange={(e) => setCnfPass(e.target.value)}
-            className="pl-10 mt-2 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 focus:ring-blue-500/20"
+            onChange={(e)=>{setCnfPass(e.target.value)}}
+            className={`pl-10 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 ${
+              passwordError ? 'border-red-500 focus:ring-red-500/20' : 'focus:ring-blue-500/20'
+            }`}
+            // className="pl-10 mt-2 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 focus:ring-blue-500/20"
             placeholder="Re-type your password"
             required
           />
+      
         </div>
       </div>
 
       <button
         type="submit"
+        disabled={passwordError?true:false}
         className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all"
       >
         Reset Password

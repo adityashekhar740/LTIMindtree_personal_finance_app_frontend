@@ -118,7 +118,7 @@ export default function Dashboard() {
             <div>
               <p className="text-gray-400">Total Income</p>
               <p className="text-2xl font-bold text-white">
-                {stats.totalIncome}
+                ₹{stats.totalIncome}
               </p>
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function Dashboard() {
             <div>
               <p className="text-gray-400">Total Expenses</p>
               <p className="text-2xl font-bold text-white">
-                {stats.totalExpenses}
+                ₹{stats.totalExpenses}
               </p>
             </div>
           </div>
@@ -146,7 +146,7 @@ export default function Dashboard() {
             <div>
               <p className="text-gray-400">Total Savings</p>
               <p className="text-2xl font-bold text-white">
-                {stats.totalSavings}
+                ₹{stats.totalSavings}
               </p>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function Dashboard() {
               <p className="text-gray-400">Investment Value</p>
               <div className="flex items-center gap-2">
                 <p className="text-2xl font-bold text-white">
-                  {stats.investmentValue}
+                  ₹{stats.investmentValue}
                 </p>
                 <span className="text-green-400 text-sm">
                   {stats.investmentReturn}
@@ -174,9 +174,10 @@ export default function Dashboard() {
 
       {/* Charts Section */}
       <div className="glass-card rounded-xl p-6 mb-8">
-        <h2 className="text-xl font-semibold text-white mb-6">
+        <h2 className="text-xl font-semibold text-white mb-3">
           Income vs Expenses
         </h2>
+        <p>*All values in rupees</p>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>

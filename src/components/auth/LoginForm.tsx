@@ -1,43 +1,65 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
-import axios from 'axios';
+import { signInStart, signInSuccess } from '../../store/features/userSlice';
 import { useAppDispatch } from '../../store/store';
-import { signInFailure, signInStart, signInSuccess } from '../../store/features/userSlice';
+import axios from 'axios';
 
 export default function LoginForm() {
-  const dispatch=useAppDispatch();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const  [error, seterror] = useState(null);
+  const [passwordError, setPasswordError] = useState('');
+   const  [error, seterror] = useState(null);
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
-  
+  const dispatch=useAppDispatch();
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const validatePassword = (value: string) => {
+    if (value.length < 8 || value.length > 16) {
+      return 'Password must be between 8 and 16 characters';
+    }
+    if (!/[A-Z]/.test(value)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(value)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[0-9]/.test(value)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[!@#$%^&*]/.test(value)) {
+      return 'Password must contain at least one special character (!@#$%^&*)';
+    }
+    return '';
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setPasswordError(validatePassword(newPassword));
+  };
+
+  const handleSubmit =async (e: React.FormEvent) => {
     e.preventDefault();
-    seterror(null);
+     seterror(null);
     try{
       dispatch(signInStart());
       const res=await axios.post('/api/auth/signin',{email,password});
       dispatch(signInSuccess(res.data));
-      if(res.data){
+      if(res.data && !passwordError ){
               navigate('/dashboard');
-
       }
     }
     catch(e){
       console.log(e);
       seterror(e.response.data);
     }
-  
-    }
-
-  
+    
+  };
 
   return (
-    <form  className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label className="block text-sm text-gray-300">Email Address</label>
         <div className="mt-1 relative">
@@ -60,12 +82,17 @@ export default function LoginForm() {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="pl-10 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 focus:ring-blue-500/20"
+            onChange={handlePasswordChange}
+            className={`pl-10 block w-full rounded-lg glass-input py-3 px-4 focus:ring-2 ${
+              passwordError ? 'border-red-500 focus:ring-red-500/20' : 'focus:ring-blue-500/20'
+            }`}
             placeholder="Enter your password"
             required
           />
         </div>
+        {passwordError && (
+          <p className="mt-2 text-sm text-red-400">{passwordError}</p>
+        )}
       </div>
 
       <div className="flex items-center justify-between">
@@ -82,11 +109,15 @@ export default function LoginForm() {
           Forgot Password?
         </Link>
       </div>
-     {error && <p className='text-center text-[red]' >{error}</p>}
+
       <button
         type="submit"
-        onClick={(e)=>{handleSubmit(e)}}
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center"
+        disabled={!!passwordError}
+        className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg transition-all flex items-center justify-center ${
+          passwordError
+            ? 'opacity-50 cursor-not-allowed'
+            : 'hover:from-blue-700 hover:to-indigo-700'
+        }`}
       >
         Sign In
       </button>
